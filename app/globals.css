@@ -24,3 +24,17 @@
 .scroll-effects__label{position:absolute;right:4vw;bottom:18px;font-size:.5rem;letter-spacing:.2em;color:#fff8;writing-mode:vertical-rl}
 @media(max-width:1100px),(pointer:coarse){.scroll-effects{display:none}}
 @media(prefers-reduced-motion:reduce){.scroll-effects{display:none}}
+
+/* ONYX emblem branding */
+.brand{width:92px;height:76px;display:inline-flex;align-items:center;justify-content:flex-start;flex-shrink:0;font-size:0;line-height:0}
+.brand-logo{display:block;width:82px;height:82px;object-fit:contain;filter:drop-shadow(0 5px 16px #0007);transition:transform .35s ease,filter .35s ease}
+.brand:hover .brand-logo{transform:scale(1.035) rotate(-1deg);filter:drop-shadow(0 8px 22px #0009)}
+.site-header .brand-logo{width:78px;height:78px}
+.footer-top .brand{width:130px;height:110px}
+.footer-top .brand-logo{width:115px;height:115px}
+@media(max-width:640px){
+ .site-header .brand{width:66px;height:66px}
+ .site-header .brand-logo{width:64px;height:64px}
+ .footer-top .brand{width:100px;height:92px}
+ .footer-top .brand-logo{width:92px;height:92px}
+}
