@@ -1,0 +1,12 @@
+import {notFound} from 'next/navigation';
+import {defaults,seed,publicRoutes} from '@/lib/onyx-data';
+import {rows,one} from '@/lib/onyx-db';
+import PublicSite from '@/components/onyx/public-site';
+import Admin from '@/components/onyx/admin';
+import {requireAppUser} from '../auth';
+import {siteOrigin} from '@/lib/auth-core.mjs';
+export const dynamic='force-dynamic';
+export async function generateMetadata({params}:{params:Promise<{path?:string[]}>}){const {path=[]}=await params;const origin=siteOrigin();let item:any=null;try{const kind=path[1]?(path[0]==='journal'?'blog':path[0]):'pages';const slug=path[1]||path[0]||'home';item=await one("SELECT * FROM content WHERE kind=? AND slug=? AND status='published'",kind,slug);}catch{}const data=item?JSON.parse(item.data):{};const title=data.seoTitle||item?.title||(path.length?path.join(' · ').replaceAll('-',' '):'Ink. Art. Identity. | Indore');const description=data.seoDescription||data.description?.slice(0,160)||'Explore tattoo styles, meet the artists and request a personal consultation at ONYX Tattoo Studio in Indore.';return {title,description,alternates:{canonical:origin+'/'+path.join('/')},robots:{index:!['admin','account'].includes(path[0])&&!data.noindex,follow:!['admin','account'].includes(path[0])},openGraph:{title,description,url:origin+'/'+path.join('/'),type:'website'},twitter:{card:'summary',title,description}};}
+
+async function StudioAdmin({path}:{path:string[]}){await requireAppUser('/'+path.join('/'));return <Admin section={path[1]||'dashboard'}/>}
+export default async function Page({params}:{params:Promise<{path?:string[]}>}){const {path=[]}=await params;if(path[0]==='admin')return <StudioAdmin path={path}/>;if(path[0]!=='account'&&!publicRoutes.includes(path[0]||''))notFound();let content=seed,settings=defaults;let offline=false;try{const initialized=await one('SELECT id FROM settings WHERE id=?','initialized');if(initialized)content=(await rows("SELECT * FROM content WHERE status='published' ORDER BY sort,title")).map(r=>({...r,data:JSON.parse(r.data)}));const s=await one('SELECT data FROM settings WHERE id=?','studio');if(s)settings={...defaults,...JSON.parse(s.data)};}catch{offline=true;}if(path.length>1&&!content.some(i=>i.kind===({journal:'blog'} as Record<string,string>)[path[0]]&&i.slug===path[1])&&!content.some(i=>i.kind===path[0]&&i.slug===path[1]))notFound();return <PublicSite path={path} initialContent={content} settings={settings} offline={offline} origin={siteOrigin()}/>;}

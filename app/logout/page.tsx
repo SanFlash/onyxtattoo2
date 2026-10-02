@@ -1,0 +1,3 @@
+'use client';
+import {useState} from 'react';
+export default function Logout(){const [error,setError]=useState('');return <main className="admin-gate"><a className="brand" href="/">ONYX</a><h1>LEAVING THE STUDIO?</h1><form onSubmit={async e=>{e.preventDefault();try{const r=await fetch('/api/auth/logout',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});if(!r.ok)throw new Error('Unable to sign out. Please try again.');location.assign('/login')}catch(e){setError((e as Error).message)}}}><p>{error||'Sign out securely from this browser.'}</p><button className="button">SIGN OUT</button></form><a className="text-link" href="/admin">Back to dashboard</a></main>}

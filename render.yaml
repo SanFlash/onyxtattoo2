@@ -1,0 +1,32 @@
+# Paid web service. Review Render's current charges before applying.
+# Website, admin panel, API, database and uploads run together.
+services:
+  - type: web
+    name: onyx-tattoo-studio
+    runtime: node
+    plan: standard
+    region: singapore
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /api/health
+    disk:
+      name: onyx-data
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: NODE_ENV
+        value: production
+      - key: NEXT_TELEMETRY_DISABLED
+        value: "1"
+      - key: DATA_DIR
+        value: /var/data/onyx
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: ADMIN_NAME
+        value: Studio Owner

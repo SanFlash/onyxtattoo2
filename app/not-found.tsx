@@ -1,0 +1,1 @@
+export default function NotFound(){return <main className="error-page"><a className="brand" href="/">ONYX</a><p className="eyebrow">404 / LOST IN THE INK</p><h1>THIS PAGE DOESN’T EXIST.<br/><em>But your next tattoo could.</em></h1><a className="button" href="/booking">Book a consultation</a><a className="text-link" href="/">Back to the studio</a></main>}

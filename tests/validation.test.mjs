@@ -1,0 +1,13 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {bookingSchema,slotTimes,validDate,permission} from '../lib/onyx-validation.ts';
+const valid={name:'Test Customer',email:'QA@EXAMPLE.COM',phone:'+91 9000000000',service:'Consultation',style:'Custom',artist:'any',placement:'Forearm',size:'Medium',description:'An original botanical piece.',date:'2027-01-04',time:'11:00',budget:'Discuss',colour:'Black & Grey',age:true,consent:true};
+test('booking normalizes email and preserves required data',()=>{const r=bookingSchema.parse(valid);assert.equal(r.email,'qa@example.com');assert.equal(r.marketing,false)});
+test('booking rejects missing age and consent',()=>{assert.equal(bookingSchema.safeParse({...valid,age:false}).success,false);assert.equal(bookingSchema.safeParse({...valid,consent:false}).success,false)});
+test('booking rejects impossible time and short description',()=>{assert.equal(bookingSchema.safeParse({...valid,time:'29:00'}).success,false);assert.equal(bookingSchema.safeParse({...valid,description:'x'}).success,false)});
+test('reference count is limited and identifiers must be UUIDs',()=>assert.equal(bookingSchema.safeParse({...valid,references:['not-a-reference']}).success,false));
+test('slot generation spans every half hour of a session',()=>assert.deepEqual(slotTimes('11:30',90),['11:30','12:00','12:30']));
+test('past and malformed dates are rejected',()=>{assert.equal(validDate('2000-01-01'),false);assert.equal(validDate('garbage'),false);assert.equal(validDate('2027-02-30'),false)});
+test('viewer cannot modify bookings or administer users',()=>{assert.equal(permission('VIEWER','bookings',true),false);assert.equal(permission('VIEWER','users',false),false);assert.equal(permission('VIEWER','bookings',false),true)});
+test('artist can read booking area but not write or access settings',()=>{assert.equal(permission('ARTIST','bookings',false),true);assert.equal(permission('ARTIST','bookings',true),false);assert.equal(permission('ARTIST','settings',false),false)});
+test('manager manages bookings while super admin controls roles',()=>{assert.equal(permission('MANAGER','bookings',true),true);assert.equal(permission('MANAGER','users',true),false);assert.equal(permission('SUPER_ADMIN','users',true),true)});

@@ -1,0 +1,14 @@
+import {loadEnv} from './env.mjs';loadEnv();
+import {snapshot,dataDirectory,closeDatabase} from '../lib/storage.mjs';
+import {DatabaseSync} from 'node:sqlite';
+import {mkdirSync,copyFileSync,writeFileSync,readFileSync,unlinkSync} from 'node:fs';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+const label=new Date().toISOString().replaceAll(':','-').replaceAll('.','-');
+const destination=path.resolve(process.argv[2]||path.join(dataDirectory(),'backups',label));
+mkdirSync(path.dirname(destination),{recursive:true});mkdirSync(destination,{recursive:false});writeFileSync(path.join(destination,'INCOMPLETE.txt'),'Do not restore until COMPLETE.json exists.');
+await snapshot(path.join(destination,'onyx.sqlite'));const copy=new DatabaseSync(path.join(destination,'onyx.sqlite'),{readOnly:true});const media=copy.prepare('SELECT id FROM media').all();copy.close();
+mkdirSync(path.join(destination,'uploads'));
+for(const {id} of media)copyFileSync(path.join(dataDirectory(),'uploads',id),path.join(destination,'uploads',id));
+const files=['onyx.sqlite',...media.map(m=>'uploads/'+m.id)];const checksums=Object.fromEntries(files.map(f=>[f,createHash('sha256').update(readFileSync(path.join(destination,f))).digest('hex')]));
+writeFileSync(path.join(destination,'COMPLETE.json'),JSON.stringify({created:new Date().toISOString(),files:checksums},null,2));unlinkSync(path.join(destination,'INCOMPLETE.txt'));closeDatabase();console.log('Complete backup: '+destination);console.log('Copy this entire directory off the service. It contains private customer data.');
