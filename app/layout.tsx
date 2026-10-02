@@ -10,5 +10,6 @@ import '@fontsource/dm-sans/700.css';
 import '@fontsource/italiana/400.css';
 import type {Metadata} from 'next';
 import './globals.css';
+import ScrollEffects from '@/components/onyx/scroll-effects';
 export const metadata:Metadata={title:{default:'ONYX Tattoo Studio · Ink. Art. Identity. | Indore',template:'%s · ONYX Tattoo Studio'},description:'Explore tattoo styles and request a personal consultation at ONYX Tattoo Studio, Indore.',icons:{icon:'/favicon.svg'}};
-export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body>{children}</body></html>}
+export default function RootLayout({children}:{children:React.ReactNode}){return <html lang="en"><body><ScrollEffects/>{children}</body></html>}
