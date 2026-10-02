@@ -1,4 +1,7 @@
 # onyxtattoo2
+
+> **Render Free deployment:** This repository is configured for the Render Free service. See [docs/FREE_RENDER.md](docs/FREE_RENDER.md) before deploying. Free Render has an ephemeral filesystem, so the current SQLite database and uploaded media are not durable. The older paid-disk instructions later in this README are retained for paid deployments.
+
 =======
 # ONYX Tattoo Studio — Render edition
 
