@@ -1,18 +1,16 @@
-# Paid web service. Review Render's current charges before applying.
-# Website, admin panel, API, database and uploads run together.
+# Render Free configuration for ONYX Tattoo Studio.
+# The Free web service has an ephemeral filesystem: SQLite data and uploads
+# can be lost on redeploy, restart, or idle spin-down. Do not use this
+# configuration for durable production customer data without external storage.
 services:
   - type: web
     name: onyx-tattoo-studio
     runtime: node
-    plan: standard
-    region: singapore
+    plan: free
+    region: oregon
     buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /api/health
-    disk:
-      name: onyx-data
-      mountPath: /var/data
-      sizeGB: 5
     envVars:
       - key: NODE_VERSION
         value: 24.19.0
@@ -21,7 +19,7 @@ services:
       - key: NEXT_TELEMETRY_DISABLED
         value: "1"
       - key: DATA_DIR
-        value: /var/data/onyx
+        value: .data
       - key: SESSION_SECRET
         generateValue: true
       - key: ADMIN_EMAIL
