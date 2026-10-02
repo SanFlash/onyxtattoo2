@@ -6,14 +6,8 @@ import {accessSync,constants,mkdirSync} from 'node:fs';
 export async function bootstrap(){
   requireSecret();
 
-  // Render Free web services do not support persistent disks.
-  // Keep the local SQLite store under the service filesystem in Free mode.
-  // Data in this mode is intentionally ephemeral and can be lost after
-  // redeploys, restarts, or idle spin-downs.
-  if(process.env.RENDER==='true' && process.env.DATA_DIR?.startsWith('/var/data/')){
-    throw new Error('This ONYX deployment is configured for a persistent Render disk. For the Free plan, set DATA_DIR=.data or remove DATA_DIR.');
-  }
-
+  // Render Free has no persistent disk, so the default .data directory is
+  // intentionally ephemeral. A paid deployment may still use /var/data.
   if(process.env.RENDER==='true' && !siteOrigin().startsWith('https://')){
     throw new Error('Set APP_URL to the HTTPS Render URL or custom domain.');
   }
@@ -39,7 +33,10 @@ export async function bootstrap(){
   d.prepare('DELETE FROM limits WHERE expires<?').run(Date.now()-86400000);
 
   if(process.env.RENDER==='true'){
-    console.log('ONYX is running on Render Free: local SQLite/media storage is ephemeral.');
+    const persistent=process.env.DATA_DIR?.startsWith('/var/data/');
+    console.log(persistent
+      ? 'ONYX is using persistent filesystem storage.'
+      : 'ONYX is running on Render Free: local SQLite/media storage is ephemeral.');
   }
   console.log('Studio storage and authentication are ready.');
 }
